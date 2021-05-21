@@ -11,12 +11,11 @@ async function main() {
 
   //console.log("Account balance:", (await deployer.getBalance()).toString());
 
-  var name = "Catoshi"
-  var symbol = "CATS"
-  var totalSupply = "100000000000000000000000"
+  var name = "Catoshi";  // token name
+  var symbol = "CATS";   // token symbol
 
   const Catoshi = await ethers.getContractFactory("Catoshi");
-  const CATS = await Catoshi.deploy(name, symbol, totalSupply);
+  const CATS = await Catoshi.deploy(name, symbol);
 
   console.log("CATS Contract Address:", CATS.address);
 }
