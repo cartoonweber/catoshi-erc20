@@ -428,7 +428,7 @@ contract Catoshi is Context, IERC20, Ownable {
 
         uint256 burnFee = tAmount.div(100).mul(2); // 2% tax to burn
 
-        uint256 charityFee = tAmount.div(100).mul(2); // 1% to charity wallet address
+        uint256 charityFee = tAmount.div(100).mul(1); // 1% to charity wallet address
 
         uint256 tTransferAmount = tAmount.sub(tFee).sub(burnFee).sub(charityFee);
 
