@@ -157,6 +157,10 @@ contract Catoshi is Context, IERC20, Ownable {
 
     // TODO: change this out with the final charity wallet address
     address private _charityWallet = 0xA39dE4d50b9e5515d32CA08411224062101e2be9;
+
+    // Max transfer size per wallet
+    uint256 private  _MAX_TX_SIZE;
+
     
     constructor (string memory cats_name, string memory cats_symbol) public {
         
@@ -169,6 +173,8 @@ contract Catoshi is Context, IERC20, Ownable {
         _rTotal = (MAX - (MAX % _tTotal));
 
         _rOwned[_msgSender()] = _rTotal; // reflection token owned
+
+        _MAX_TX_SIZE = _tTotal.div(100).div(100).mul(25);  // 0.25 percent of totalsupply, max transfer per wallet
 
         _name = cats_name; _symbol = cats_symbol;
 
@@ -309,6 +315,11 @@ contract Catoshi is Context, IERC20, Ownable {
         require(sender != address(0), "ERC20: transfer from the zero address");
         require(recipient != address(0), "ERC20: transfer to the zero address");
         require(amount > 0, "Transfer amount must be greater than zero");
+
+        // bot protection max 0.25% of total supply per transaction
+        if(sender != owner() && recipient != owner())
+            require(amount <= _MAX_TX_SIZE, "Transfer amount exceeds the mxTxAmount.");
+        
         if (_isExcluded[sender] && !_isExcluded[recipient]) {
             _transferFromExcluded(sender, recipient, amount);
         } else if (!_isExcluded[sender] && _isExcluded[recipient]) {
