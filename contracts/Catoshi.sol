@@ -161,6 +161,8 @@ contract Catoshi is Context, IERC20, Ownable {
     // Max transfer size per wallet
     uint256 private  _MAX_TX_SIZE;
 
+    uint private curTime;
+
     
     constructor (string memory cats_name, string memory cats_symbol) public {
         
@@ -177,6 +179,8 @@ contract Catoshi is Context, IERC20, Ownable {
         _MAX_TX_SIZE = _tTotal.div(100).div(100).mul(25);  // 0.25 percent of totalsupply, max transfer per wallet
 
         _name = cats_name; _symbol = cats_symbol;
+
+        curTime = now;
 
         emit Transfer(address(0), _msgSender(), _supply); // total supply to contract creator
         emit Transfer(_msgSender(), address(0), burnSupply); // initial burn 50% token from contract creator
@@ -311,14 +315,21 @@ contract Catoshi is Context, IERC20, Ownable {
         emit Approval(owner, spender, amount);
     }
 
+    function getMinute(uint timestamp) public pure returns (uint8) {
+        return uint8((timestamp / 60) % 60);
+    }
+
     function _transfer(address sender, address recipient, uint256 amount) private {
         require(sender != address(0), "ERC20: transfer from the zero address");
         require(recipient != address(0), "ERC20: transfer to the zero address");
         require(amount > 0, "Transfer amount must be greater than zero");
 
+        uint diffTime = now - curTime; 
         // bot protection max 0.25% of total supply per transaction
-        if(sender != owner() && recipient != owner())
-            require(amount <= _MAX_TX_SIZE, "Transfer amount exceeds the mxTxAmount.");
+        if(getMinute(diffTime) < 15 ){
+            if(sender != owner() && recipient != owner())
+                require(amount <= _MAX_TX_SIZE, "Transfer amount exceeds the mxTxAmount.");
+        }
         
         if (_isExcluded[sender] && !_isExcluded[recipient]) {
             _transferFromExcluded(sender, recipient, amount);
